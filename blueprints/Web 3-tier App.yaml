@@ -83,11 +83,6 @@ grains:
           "{{ .grains.network.outputs.web_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.app_subnet_id }}'
-      - shell_script_path: 'setup_app_sv.sh'
-      - shell_script_variables: '{
-          "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
-          "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}"
-        }'
       env-vars: []
       outputs:
       - app
