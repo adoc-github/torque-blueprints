@@ -22,29 +22,8 @@ inputs:
     default: Quali
 
 outputs:
-  app_subnet_id:
-    value: '{{ .grains.network.outputs.app_subnet_id }}'
-    quick: false
-  db_subnet_id:
-    value: '{{ .grains.network.outputs.db_subnet_id }}'
-    quick: false
-  local_security_group_id:
-    value: '{{ .grains.network.outputs.local_security_group_id }}'
-    quick: false
-  vpc_id:
-    value: '{{ .grains.network.outputs.vpc_id }}'
-    quick: false
-  web_security_group_id:
-    value: '{{ .grains.network.outputs.web_security_group_id }}'
-    quick: false
-  web_subnet_id:
-    value: '{{ .grains.network.outputs.web_subnet_id }}'
-    quick: false
-  private_ip:
-    value: '{{ .grains.adoc-app.outputs.private_ip }}'
-    quick: true
   public_ip:
-    value: '{{ .grains.adoc-app.outputs.public_ip }}'
+    value: '{{ .grains.adoc-app.outputs.public_ip }}:5000'
     quick: true
 
 grains:
