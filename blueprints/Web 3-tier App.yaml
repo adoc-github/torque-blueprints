@@ -70,7 +70,7 @@ grains:
     spec:
       source:
         store: iac-assets
-        path: terraform/web-3-tier/applications/adoc-app
+        path: terraform/web-3-tier/adoc-app
       agent:
         name: '{{ .inputs.agent }}'
       authentication:
