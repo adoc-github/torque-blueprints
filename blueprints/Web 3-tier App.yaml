@@ -1,6 +1,10 @@
 spec_version: 2
 description: Deploy ADOC Application.
 inputs:
+  prefix:
+    type: string
+    default: adoc
+    description: Resource prefix name
   my_ip:
     type: string
     default: 0.0.0.0/0
@@ -36,8 +40,11 @@ outputs:
   web_subnet_id:
     value: '{{ .grains.network.outputs.web_subnet_id }}'
     quick: false
-  app:
-    value: '{{ .grains.adoc-app.outputs.app }}'
+  private_ip:
+    value: '{{ .grains.adoc-app.outputs.private_ip }}'
+    quick: true
+  public_ip:
+    value: '{{ .grains.adoc-app.outputs.public_ip }}'
     quick: true
 
 grains:
@@ -56,15 +63,16 @@ grains:
       - region: '{{ .inputs.region }}'
       env-vars: []
       outputs:
-      - app_subnet_id
-      - db_subnet_id
-      - local_security_group_id
       - vpc_id
-      - web_security_group_id
+      - db_subnet_id
+      - app_subnet_id
       - web_subnet_id
+      - local_security_group_id
+      - web_security_group_id
+      - ssh_security_group_id
     tf-version: 1.4.6
 
-  adoc-app:
+  adoc-db:
     kind: terraform
     depends-on: network
     spec:
@@ -76,19 +84,83 @@ grains:
       authentication:
       - adoc-aws-user
       inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'db'
       - instance_type: '{{ .inputs.instance_type }}'
       - region: '{{ .inputs.region }}'
       - security_group_ids: '[
           "{{ .grains.network.outputs.local_security_group_id }}",
-          "{{ .grains.network.outputs.web_security_group_id }}"
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
+      - shell_script_path: 'setup_db_sv.sh'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+    tf-version: 1.4.6
+
+  adoc-app:
+    kind: terraform
+    depends-on: network, adoc-db
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'app'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.web_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.app_subnet_id }}'
       - shell_script_path: 'setup_app_sv.sh'
       - shell_script_variables: '{
           "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
-          "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}"
+          "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
+          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}"
         }'
       env-vars: []
       outputs:
-      - app
+      - private_ip
+      - public_ip
+    tf-version: 1.4.6
+
+  adoc-web:
+    kind: terraform
+    depends-on: network, adoc-app
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'web'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
+      - shell_script_path: 'setup_web_sv.sh'
+      - shell_script_variables: '{
+          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}"
+        }'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
     tf-version: 1.4.6
