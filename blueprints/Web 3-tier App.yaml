@@ -23,7 +23,7 @@ inputs:
 
 outputs:
   public_ip:
-    value: '{{ .grains.adoc-app.outputs.public_ip }}:5000'
+    value: '{{ .grains.adoc-web.outputs.public_ip }}'
     quick: true
 
 grains:
