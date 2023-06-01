@@ -90,7 +90,7 @@ grains:
       - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
       - shell_script_path: 'setup_db_sv.sh'
       - shell_script_variables: '{
-          "elastic_agent_install": "false",
+          "elastic_agent_install": "true",
           "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
