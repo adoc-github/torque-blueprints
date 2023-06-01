@@ -21,10 +21,7 @@ inputs:
     type: agent
     default: Quali
 
-outputs:
-  public_ip:
-    value: '{{ .grains.adoc-web.outputs.public_ip }}'
-    quick: true
+outputs: []
 
 grains:
   network:
