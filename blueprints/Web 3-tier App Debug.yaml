@@ -24,52 +24,8 @@ inputs:
 # outputs:
 
 grains:
-  network:
-    kind: terraform
-    spec:
-      source:
-        store: iac-assets
-        path: terraform/web-3-tier/network
-      agent:
-        name: '{{ .inputs.agent }}'
-      authentication:
-      - adoc-aws-user
-      inputs:
-      - my_ip: '{{ .inputs.my_ip }}'
-      - region: '{{ .inputs.region }}'
-      env-vars: []
-      outputs:
-      - vpc_id
-      - db_subnet_id
-      - app_subnet_id
-      - web_subnet_id
-      - local_security_group_id
-      - web_security_group_id
-      - ssh_security_group_id
-    tf-version: 1.4.6
-
-  connect-elastic:
-    kind: terraform
-    depends-on: network
-    spec:
-      source:
-        store: iac-assets
-        path: terraform/web-3-tier/connect-elastic
-      agent:
-        name: '{{ .inputs.agent }}'
-      authentication:
-      - adoc-aws-user
-      inputs:
-      - region: '{{ .inputs.region }}'
-      - peer_vpc_id: '{{ .grains.network.outputs.vpc_id }}'
-      env-vars: []
-      outputs:
-      - vpc_peering_id
-    tf-version: 1.4.6
-
   adoc-db:
     kind: terraform
-    depends-on: network, connect-elastic
     spec:
       source:
         store: iac-assets
@@ -84,10 +40,9 @@ grains:
       - instance_type: '{{ .inputs.instance_type }}'
       - region: '{{ .inputs.region }}'
       - security_group_ids: '[
-          "{{ .grains.network.outputs.local_security_group_id }}",
-          "{{ .grains.network.outputs.ssh_security_group_id }}"
+          "sg-06aa1174f354ad316"
         ]'
-      - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
+      - subnet_id: 'subnet-0bb1f37d0294541dd'
       - shell_script_path: 'setup_db_sv.sh'
       - shell_script_variables: '{
           "elastic_agent_install": "true",
