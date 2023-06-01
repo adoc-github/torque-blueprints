@@ -93,7 +93,7 @@ grains:
       - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
       - shell_script_path: 'setup_db_sv.sh'
       - shell_script_variables: '{
-          "elastic_agent_install": true,
+          "elastic_agent_install": false,
           "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
@@ -128,7 +128,7 @@ grains:
           "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
           "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
           "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}",
-          "elastic_agent_install": true,
+          "elastic_agent_install": false,
           "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
@@ -162,7 +162,7 @@ grains:
       - shell_script_path: 'setup_web_sv.sh'
       - shell_script_variables: '{
           "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}",
-          "elastic_agent_install": true,
+          "elastic_agent_install": false,
           "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
