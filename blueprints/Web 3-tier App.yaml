@@ -17,6 +17,10 @@ inputs:
     type: string
     default: t2.micro
     description: Instance type
+  elastic_agent_install:
+    type: boolean
+    default: true
+    description: Enable Elastic Agent
   agent:
     type: agent
     default: Quali
@@ -51,6 +55,25 @@ grains:
       - ssh_security_group_id
     tf-version: 1.4.6
 
+  connect-elastic:
+    kind: terraform
+    depends-on: network
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/connect-elastic
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - region: '{{ .inputs.region }}'
+      - peer_vpc_id: '{{ .grains.network.outputs.vpc_id }}'
+      env-vars: []
+      outputs:
+      - vpc_peering_id
+    tf-version: 1.4.6
+
   adoc-db:
     kind: terraform
     depends-on: network
@@ -73,6 +96,10 @@ grains:
         ]'
       - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
       - shell_script_path: 'setup_db_sv.sh'
+      - shell_script_variables: '{
+          "elastic_agent_install": "{{ .inputs.elastic_agent_install }}",
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+        }'
       env-vars: []
       outputs:
       - private_ip
@@ -104,7 +131,9 @@ grains:
       - shell_script_variables: '{
           "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
           "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
-          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}"
+          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}",
+          "elastic_agent_install": "{{ .inputs.elastic_agent_install }}",
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
       outputs:
@@ -136,7 +165,9 @@ grains:
       - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
       - shell_script_path: 'setup_web_sv.sh'
       - shell_script_variables: '{
-          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}"
+          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}",
+          "elastic_agent_install": "{{ .inputs.elastic_agent_install }}",
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
         }'
       env-vars: []
       outputs:
