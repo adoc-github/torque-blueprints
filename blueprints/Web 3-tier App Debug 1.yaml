@@ -61,9 +61,14 @@ grains:
       inputs:
       - region: '{{ .inputs.region }}'
       - peer_vpc_id: '{{ .grains.network.outputs.vpc_id }}'
+      - attach_subnet_ids2: '[
+          "{{ .grains.network.outputs.db_subnet_id }}",
+          "{{ .grains.network.outputs.app_subnet_id }}",
+          "{{ .grains.network.outputs.web_subnet_id }}"
+        ]'
       env-vars: []
       outputs:
-      - vpc_peering_id
+      - transit_gateway_id
     tf-version: 1.4.6
 
   adoc-db:
