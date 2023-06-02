@@ -3,7 +3,7 @@ description: Deploy ADOC Application.
 inputs:
   prefix:
     type: string
-    default: adoc
+    default: debug2
     description: Resource prefix name
   my_ip:
     type: string
@@ -20,8 +20,6 @@ inputs:
   agent:
     type: agent
     default: Quali
-
-# outputs:
 
 grains:
   adoc-db:
