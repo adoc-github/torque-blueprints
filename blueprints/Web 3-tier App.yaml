@@ -161,6 +161,7 @@ grains:
           "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
+      - eip_id: '{{ .params.ADOC_APP_AWS_EIP_ID }}'
       - shell_script_path: 'setup_web_sv.sh'
       - shell_script_variables: '{
           "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}",
