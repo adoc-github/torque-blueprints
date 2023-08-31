@@ -21,6 +21,8 @@ outputs:
   public_ip:
     value: '{{ .grains.adoc-web.outputs.public_ip }}'
     quick: true
+  public_dns:
+    value: '{{ .grains.adoc-web.outputs.public_dns }}'
 
 grains:
   network:
