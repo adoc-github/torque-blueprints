@@ -172,4 +172,5 @@ grains:
       outputs:
       - private_ip
       - public_ip
+      - public_dns
     tf-version: 1.4.6
