@@ -13,6 +13,9 @@ inputs:
     type: string
     default: t2.micro
     description: Instance type
+  tester_ip:
+    type: string
+    default: 0.0.0.0/0
   agent:
     type: agent
     default: Quali
@@ -21,8 +24,8 @@ outputs:
   public_ip:
     value: '{{ .grains.adoc-web.outputs.public_ip }}'
     quick: true
-  public_dns:
-    value: '{{ .grains.adoc-web.outputs.public_dns }}'
+  private_dns:
+    value: '{{ .grains.adoc-web.outputs.private_dns }}'
 
 grains:
   network:
@@ -37,7 +40,7 @@ grains:
       - adoc-aws-user
       inputs:
       - prefix: '{{ .inputs.prefix }}'
-      - my_ip: "{{ .params.ADOC_LAB_IP }}"
+      - my_ip: "{{ .params.ADOC_LAB_IP }}, {{ .inputs.tester_ip }}"
       - region: '{{ .inputs.region }}'
       env-vars: []
       outputs:
@@ -174,5 +177,5 @@ grains:
       outputs:
       - private_ip
       - public_ip
-      - public_dns
+      - private_dns
     tf-version: 1.4.6
