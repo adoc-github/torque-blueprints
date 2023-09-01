@@ -40,7 +40,10 @@ grains:
       - adoc-aws-user
       inputs:
       - prefix: '{{ .inputs.prefix }}'
-      - my_ip: "{{ .params.ADOC_LAB_IP }}, {{ .inputs.tester_ip }}"
+      - my_ip: '[
+          "{{ .params.ADOC_LAB_IP }}", 
+          "{{ .inputs.tester_ip }}"
+        ]'
       - region: '{{ .inputs.region }}'
       env-vars: []
       outputs:
