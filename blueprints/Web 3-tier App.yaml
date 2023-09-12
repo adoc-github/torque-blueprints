@@ -24,6 +24,9 @@ outputs:
   public_ip:
     value: '{{ .grains.adoc-web.outputs.public_ip }}'
     quick: true
+  private_ip:
+    value: '{{ .grains.adoc-web.outputs.private_ip }}'
+    quick: true
   private_dns:
     value: '{{ .grains.adoc-web.outputs.private_dns }}'
 
