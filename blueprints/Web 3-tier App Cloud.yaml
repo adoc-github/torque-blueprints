@@ -29,9 +29,9 @@ outputs:
   hostname:
     value: '{{ .grains.adoc-web.outputs.private_dns }}'
   windows_ip:
-    value: '{{ .grains.network.outputs.public_ip }}'
+    value: '{{ .grains.network.outputs.windows_public_ip }}'
   windows_password:
-    value: '{{ .grains.network.outputs.password }}'
+    value: '{{ .grains.network.outputs.windows_password }}'
 
 grains:
   network:
