@@ -29,9 +29,9 @@ outputs:
   hostname:
     value: '{{ .grains.adoc-web.outputs.private_dns }}'
   windows_ip:
-    value: '{{ .grains.windows-rdp.outputs.public_ip }}'
+    value: '{{ .grains.network.outputs.public_ip }}'
   windows_password:
-    value: '{{ .grains.windows-rdp.outputs.password }}'
+    value: '{{ .grains.network.outputs.password }}'
 
 grains:
   network:
@@ -50,6 +50,7 @@ grains:
           "{{ .params.ADOC_LAB_IP }}", 
           "{{ .inputs.tester_ip }}"
         ]'
+      - enable_windows_rdp: true
       - region: '{{ .inputs.region }}'
       env-vars: []
       outputs:
@@ -61,6 +62,8 @@ grains:
       - web_security_group_id
       - rdp_security_group_id
       - ssh_security_group_id
+      - windows_public_ip
+      - windows_password
     tf-version: 1.4.6
 
   connect-elastic:
