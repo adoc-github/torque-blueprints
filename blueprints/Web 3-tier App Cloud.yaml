@@ -90,36 +90,6 @@ grains:
       - vpc_peering_id
     tf-version: 1.4.6
 
-  windows-rdp:
-    kind: terraform
-    depends-on: network, connect-elastic
-    spec:
-      source:
-        store: iac-assets
-        path: terraform/web-3-tier/adoc-app
-      agent:
-        name: '{{ .inputs.agent }}'
-      authentication:
-      - adoc-aws-user
-      inputs:
-      - prefix: '{{ .inputs.prefix }}'
-      - name: 'windows-rdp'
-      - instance_type: 't3a.small'
-      - region: '{{ .inputs.region }}'
-      - security_group_ids: '[
-          "{{ .grains.network.outputs.local_security_group_id }}",
-          "{{ .grains.network.outputs.rdp_security_group_id }}"
-        ]'
-      - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
-      - shell_script_path: 'install_chrome.ps1'
-      - get_password_data: true
-      env-vars: []
-      outputs:
-      - private_ip
-      - public_ip
-      - password
-    tf-version: 1.4.6
-
   adoc-db:
     kind: terraform
     depends-on: network, connect-elastic
