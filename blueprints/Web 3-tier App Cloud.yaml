@@ -21,9 +21,6 @@ inputs:
     default: Quali
 
 outputs:
-  web_public_ip:
-    value: '{{ .grains.adoc-web.outputs.public_ip }}'
-    quick: true
   web_private_ip:
     value: '{{ .grains.adoc-web.outputs.private_ip }}'
   hostname:
