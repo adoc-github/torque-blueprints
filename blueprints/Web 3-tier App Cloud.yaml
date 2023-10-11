@@ -1,0 +1,217 @@
+spec_version: 2
+description: Deploy ADOC Application.
+inputs:
+  prefix:
+    type: string
+    default: adoc
+    description: Resource prefix name
+  region:
+    type: string
+    default: ap-northeast-1
+    description: Region of Webapp
+  instance_type:
+    type: string
+    default: t2.micro
+    description: Instance type
+  tester_ip:
+    type: string
+    default: 0.0.0.0/0
+  agent:
+    type: agent
+    default: Quali
+
+outputs:
+  public_ip:
+    value: '{{ .grains.adoc-web.outputs.public_ip }}'
+    quick: true
+  private_ip:
+    value: '{{ .grains.adoc-web.outputs.private_ip }}'
+    quick: true
+  private_dns:
+    value: '{{ .grains.adoc-web.outputs.private_dns }}'
+
+grains:
+  network:
+    kind: terraform
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/network
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - my_ip: '[
+          "{{ .params.ADOC_LAB_IP }}", 
+          "{{ .inputs.tester_ip }}"
+        ]'
+      - region: '{{ .inputs.region }}'
+      env-vars: []
+      outputs:
+      - vpc_id
+      - db_subnet_id
+      - app_subnet_id
+      - web_subnet_id
+      - local_security_group_id
+      - web_security_group_id
+      - ssh_security_group_id
+    tf-version: 1.4.6
+
+  connect-elastic:
+    kind: terraform
+    depends-on: network
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/connect-elastic
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - region: '{{ .inputs.region }}'
+      - peer_vpc_id: '{{ .grains.network.outputs.vpc_id }}'
+      - attach_subnet_ids2: '[
+          "{{ .grains.network.outputs.db_subnet_id }}",
+          "{{ .grains.network.outputs.app_subnet_id }}",
+          "{{ .grains.network.outputs.web_subnet_id }}"
+        ]'
+      env-vars: []
+      outputs:
+      - vpc_peering_id
+    tf-version: 1.4.6
+
+  windows-rdp:
+    kind: terraform
+    depends-on: network, connect-elastic
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'windows-rdp'
+      - instance_type: 't3a.small'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
+      - shell_script_path: 'install_chrome.ps1'
+      - get_password_data: true
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+      - password
+    tf-version: 1.4.6
+
+  adoc-db:
+    kind: terraform
+    depends-on: network, connect-elastic
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'db'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
+      - shell_script_path: 'setup_db_sv.sh'
+      - shell_script_variables: '{
+          "elastic_agent_install": true,
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+        }'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+    tf-version: 1.4.6
+
+  adoc-app:
+    kind: terraform
+    depends-on: network, adoc-db
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'app'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.app_subnet_id }}'
+      - shell_script_path: 'setup_app_sv.sh'
+      - shell_script_variables: '{
+          "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
+          "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
+          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}",
+          "elastic_agent_install": true,
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+        }'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+    tf-version: 1.4.6
+
+  adoc-web:
+    kind: terraform
+    depends-on: network, adoc-app
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'web'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.web_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
+      - eip_id: '{{ .params.ADOC_APP_AWS_EIP_ID }}'
+      - shell_script_path: 'setup_web_sv.sh'
+      - shell_script_variables: '{
+          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}",
+          "elastic_agent_install": true,
+          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+        }'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+      - private_dns
+    tf-version: 1.4.6
