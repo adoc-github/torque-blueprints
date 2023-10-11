@@ -29,6 +29,8 @@ outputs:
     quick: true
   private_dns:
     value: '{{ .grains.adoc-web.outputs.private_dns }}'
+  windows_password:
+    value: '{{ .grains.windows-rdp.outputs.password }}'
 
 grains:
   network:
