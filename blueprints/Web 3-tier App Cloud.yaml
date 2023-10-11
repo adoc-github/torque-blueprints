@@ -101,7 +101,7 @@ grains:
       - region: '{{ .inputs.region }}'
       - security_group_ids: '[
           "{{ .grains.network.outputs.local_security_group_id }}",
-          "{{ .grains.network.outputs.ssh_security_group_id }}"
+          "{{ .grains.network.outputs.rdp_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
       - shell_script_path: 'install_chrome.ps1'
