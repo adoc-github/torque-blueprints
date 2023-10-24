@@ -47,6 +47,7 @@ grains:
           "{{ .params.ADOC_LAB_IP }}", 
           "{{ .inputs.tester_ip }}"
         ]'
+      - vpc_cidr: '172.16.1.0/24'
       - enable_windows_rdp: true
       - region: '{{ .inputs.region }}'
       env-vars: []
