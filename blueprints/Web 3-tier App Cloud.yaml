@@ -15,7 +15,7 @@ inputs:
     description: Instance type
   tester_ip:
     type: string
-    default: 10.0.2.12/32
+    default: 10.0.2.206/32
   agent:
     type: agent
     default: Quali
