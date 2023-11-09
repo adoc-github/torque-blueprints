@@ -1,0 +1,86 @@
+spec_version: 2
+description: Deploy ADOC Application.
+inputs:
+  prefix:
+    type: string
+    default: adoc
+    description: Resource prefix name
+  region:
+    type: string
+    default: ap-northeast-1
+    description: Region of Webapp
+  instance_type:
+    type: string
+    default: t2.micro
+    description: Instance type
+  tester_ip:
+    type: string
+    default: 10.0.2.206/32
+  agent:
+    type: agent
+    default: Quali
+
+outputs:
+  db_public_ip:
+    value: '{{ .grains.adoc-db.outputs.public_ip }}'
+    quick: true
+  db_private_ip:
+    value: '{{ .grains.adoc-db.outputs.private_ip }}'
+
+grains:
+  network:
+    kind: terraform
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/network
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - my_ip: '[
+          "{{ .params.ADOC_LAB_IP }}", 
+          "{{ .inputs.tester_ip }}"
+        ]'
+      - vpc_cidr: '172.16.0.0/24'
+      - region: '{{ .inputs.region }}'
+      env-vars: []
+      outputs:
+      - vpc_id
+      - db_subnet_id
+      - app_subnet_id
+      - web_subnet_id
+      - local_security_group_id
+      - web_security_group_id
+      - ssh_security_group_id
+    tf-version: 1.4.6
+
+  adoc-db:
+    kind: terraform
+    depends-on: network
+    spec:
+      source:
+        store: iac-assets
+        path: terraform/web-3-tier/adoc-app
+      agent:
+        name: '{{ .inputs.agent }}'
+      authentication:
+      - adoc-aws-user
+      inputs:
+      - prefix: '{{ .inputs.prefix }}'
+      - name: 'db'
+      - instance_type: '{{ .inputs.instance_type }}'
+      - region: '{{ .inputs.region }}'
+      - security_group_ids: '[
+          "{{ .grains.network.outputs.local_security_group_id }}",
+          "{{ .grains.network.outputs.ssh_security_group_id }}"
+        ]'
+      - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
+      - shell_script_path: 'setup_db_sv.sh'
+      env-vars: []
+      outputs:
+      - private_ip
+      - public_ip
+    tf-version: 1.4.6
