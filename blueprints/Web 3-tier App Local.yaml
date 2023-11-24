@@ -16,6 +16,10 @@ inputs:
   tester_ip:
     type: string
     default: 10.0.2.206/32
+  seeker_agent_name:
+    type: string
+    quick: false
+    default: Local_Test
   agent:
     type: agent
     default: Quali
@@ -104,11 +108,9 @@ grains:
           "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
-      - shell_script_path: 'setup_db_sv.sh'
-      - shell_script_variables: '{
-          "elastic_agent_install": true,
-          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
-        }'
+      - setup_script_name: 'setup_db_sv.sh'
+      - install_elastic_apm: true
+      - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
       env-vars: []
       outputs:
       - private_ip
@@ -136,14 +138,16 @@ grains:
           "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.app_subnet_id }}'
-      - shell_script_path: 'setup_app_sv.sh'
-      - shell_script_variables: '{
+      - setup_script_name: 'setup_app_sv.sh'
+      - setup_script_parameter: '{
           "github_username": "{{ .params.ADOC_GITHUB_USERNAME }}",
           "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
-          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}",
-          "elastic_agent_install": true,
-          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+          "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}"
         }'
+      - install_elastic_apm: true
+      - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
+      - install_seeker_agent: true
+      - seeker_agent_name: '{{ .inputs.seeker_agent_name }}'
       env-vars: []
       outputs:
       - private_ip
@@ -172,12 +176,12 @@ grains:
           "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
-      - shell_script_path: 'setup_web_sv.sh'
-      - shell_script_variables: '{
-          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}",
-          "elastic_agent_install": true,
-          "elastic_agent_token": "{{ .params.ELASTIC_AGENT_TOKEN }}"
+      - setup_script_name: 'setup_web_sv.sh'
+      - setup_script_parameter: '{
+          "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}"
         }'
+      - install_elastic_apm: true
+      - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
       env-vars: []
       outputs:
       - private_ip
