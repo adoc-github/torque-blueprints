@@ -16,9 +16,20 @@ inputs:
   tester_ip:
     type: string
     default: 10.0.2.206/32
+  install_elastic_apm:
+    type: string
+    default: true
+    allowed-values:
+      - true
+      - false
+  install_seeker_agent:
+    type: string
+    default: true
+    allowed-values:
+      - true
+      - false
   seeker_agent_name:
     type: string
-    quick: false
     default: Cloud_Test
   agent:
     type: agent
@@ -114,7 +125,7 @@ grains:
         ]'
       - subnet_id: '{{ .grains.network.outputs.db_subnet_id }}'
       - setup_script_name: 'setup_db_sv.sh'
-      - install_elastic_apm: true
+      - install_elastic_apm: '{{ .inputs.install_elastic_apm }}'
       - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
       env-vars: []
       outputs:
@@ -149,9 +160,9 @@ grains:
           "github_token": "{{ .params.ADOC_GITHUB_TOKEN }}",
           "db_ip": "{{ .grains.adoc-db.outputs.private_ip }}"
         }'
-      - install_elastic_apm: true
+      - install_elastic_apm: '{{ .inputs.install_elastic_apm }}'
       - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
-      - install_seeker_agent: true
+      - install_seeker_agent: '{{ .inputs.install_seeker_agent }}'
       - seeker_agent_name: '{{ .inputs.seeker_agent_name }}'
       env-vars: []
       outputs:
@@ -185,7 +196,7 @@ grains:
       - setup_script_parameter: '{
           "app_ip": "{{ .grains.adoc-app.outputs.private_ip }}"
         }'
-      - install_elastic_apm: true
+      - install_elastic_apm: '{{ .inputs.install_elastic_apm }}'
       - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
       env-vars: []
       outputs:
