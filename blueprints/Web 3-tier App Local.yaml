@@ -41,6 +41,8 @@ outputs:
     quick: true
   web_private_ip:
     value: '{{ .grains.adoc-web.outputs.private_ip }}'
+  db_private_ip:
+    value: '{{ .grains.adoc-db.outputs.private_ip }}'
   hostname:
     value: '{{ .grains.adoc-web.outputs.private_dns }}'
 
