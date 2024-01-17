@@ -68,6 +68,6 @@ grains:
             local:
               ansible_connection: local
               ansible_host: localhost
-            vars:
-              aws_access_key: AKIA563JS5T2E3AVOD5L
-              aws_secret_access_key: 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
+          vars:
+            aws_access_key: AKIA563JS5T2E3AVOD5L
+            aws_secret_access_key: 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
