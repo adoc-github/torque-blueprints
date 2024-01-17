@@ -39,21 +39,6 @@ grains:
   #         vars:
   #           person_name: John
 
-  # local-task:
-  #   kind: ansible
-  #   spec:
-  #     source:
-  #       store: iac-assets
-  #       path: ansible/local-task.yaml
-  #     agent:
-  #       name: adoc-ec2-k8s
-  #     inventory-file:
-  #       all:
-  #         hosts:
-  #           local:
-  #             ansible_connection: local
-  #             ansible_host: localhost
-
   download-file-s3:
     kind: ansible
     spec:
@@ -71,3 +56,18 @@ grains:
           vars:
             aws_access_key: AKIA563JS5T2E3AVOD5L
             aws_secret_access_key: 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
+
+  local-task:
+    kind: ansible
+    spec:
+      source:
+        store: iac-assets
+        path: ansible/local-task.yaml
+      agent:
+        name: adoc-ec2-k8s
+      inventory-file:
+        all:
+          hosts:
+            local:
+              ansible_connection: local
+              ansible_host: localhost
