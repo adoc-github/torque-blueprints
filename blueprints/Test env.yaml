@@ -4,6 +4,10 @@ inputs:
   instance_ip:
     type: string
     default: 0.0.0.0
+  aws_access_key:
+    type: string
+  aws_secret_access_key:
+    type: string
 outputs: {}
 grains:  
   # hello-world:
@@ -38,8 +42,8 @@ grains:
               ansible_connection: local
               ansible_host: localhost
           vars:
-            aws_access_key: AKIA563JS5T2E3AVOD5L
-            aws_secret_access_key: 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
+            aws_access_key: '{{ .inputs.aws_access_key }}'
+            aws_secret_access_key: '{{ .inputs.aws_secret_access_key }}'
 
   install-apache:
     depends-on: download-file-s3
