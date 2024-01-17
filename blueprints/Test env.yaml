@@ -5,23 +5,7 @@ inputs:
     type: string
     default: 0.0.0.0
 outputs: {}
-grains:
-  # install-apache:
-  #   kind: ansible
-  #   spec:
-  #     source:
-  #       store: iac-assets
-  #       path: ansible/install-apache.yaml
-  #     agent:
-  #       name: adoc-vcenter
-  #     inventory-file:
-  #       all:
-  #         hosts:
-  #           '{{ .inputs.instance_ip }}':
-  #         vars:
-  #           ansible_user: centos
-  #           ansible_ssh_private_key_file: /var/secrets/torque.pem
-  
+grains:  
   # hello-world:
   #   kind: ansible
   #   spec:
@@ -57,17 +41,34 @@ grains:
             aws_access_key: AKIA563JS5T2E3AVOD5L
             aws_secret_access_key: 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
 
-  local-task:
+  install-apache:
+    depends-on: download-file-s3
     kind: ansible
     spec:
       source:
         store: iac-assets
-        path: ansible/local-task.yaml
+        path: ansible/install-apache.yaml
       agent:
         name: adoc-ec2-k8s
       inventory-file:
         all:
           hosts:
-            local:
-              ansible_connection: local
-              ansible_host: localhost
+            sut_machine:
+              ansible_host: '{{ .inputs.instance_ip }}'
+              ansible_user: ec2-user
+              ansible_ssh_private_key_file: /tmp/torque.pem
+
+  # local-task:
+  #   kind: ansible
+  #   spec:
+  #     source:
+  #       store: iac-assets
+  #       path: ansible/local-task.yaml
+  #     agent:
+  #       name: adoc-ec2-k8s
+  #     inventory-file:
+  #       all:
+  #         hosts:
+  #           local:
+  #             ansible_connection: local
+  #             ansible_host: localhost
