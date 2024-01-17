@@ -1,0 +1,22 @@
+spec_version: 2
+description: Testing ansible grain.
+inputs:
+  instance_ip:
+    type: string
+    default: 0.0.0.0
+outputs: {}
+grains:
+  local-task:
+    kind: ansible
+    spec:
+      source:
+        store: iac-assets
+        path: ansible/local-task.yaml
+      agent:
+        name: adoc-ec2-k8s
+      inventory-file:
+        all:
+          hosts:
+            local:
+              ansible_connection: local
+              ansible_host: localhost
