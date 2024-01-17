@@ -11,7 +11,7 @@ grains:
   #   spec:
   #     source:
   #       store: iac-assets
-  #       path: ansible/install-apache.yml
+  #       path: ansible/install-apache.yaml
   #     agent:
   #       name: adoc-vcenter
   #     inventory-file:
@@ -44,7 +44,7 @@ grains:
     spec:
       source:
         store: iac-assets
-        path: ansible/local-task.yml
+        path: ansible/local-task.yaml
       agent:
         name: adoc-ec2-k8s
       inventory-file:
