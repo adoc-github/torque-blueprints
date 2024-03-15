@@ -102,7 +102,7 @@ grains:
 
   adoc-web:
     kind: terraform
-    depends-on: network, adoc-app
+    depends-on: network, connect-elastic
     spec:
       source:
         store: iac-assets
