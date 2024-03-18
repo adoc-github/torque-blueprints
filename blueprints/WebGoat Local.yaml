@@ -120,7 +120,7 @@ grains:
           "{{ .grains.network.outputs.ssh_security_group_id }}"
         ]'
       - subnet_id: '{{ .grains.network.outputs.web_subnet_id }}'
-      - setup_script_name: 'setup_test_sv.sh'
+      - setup_script_name: 'setup_webgoat_sv.sh'
       - install_elastic_apm: '{{ .inputs.install_elastic_apm }}'
       - elastic_agent_token: '{{ .params.ELASTIC_AGENT_TOKEN }}'
       env-vars: []
