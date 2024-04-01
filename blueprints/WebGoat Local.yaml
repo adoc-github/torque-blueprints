@@ -64,7 +64,7 @@ grains:
           "{{ .params.ADOC_LAB_IP }}", 
           "{{ .inputs.tester_ip }}"
         ]'
-      - vpc_cidr: '172.16.0.0/24'
+      - vpc_cidr: '172.16.20.0/24'
       - region: '{{ .inputs.region }}'
       env-vars: []
       outputs:
