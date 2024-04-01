@@ -36,6 +36,9 @@ inputs:
     default: Quali
 
 outputs:
+  web_url:
+    value: 'http://{{ .grains.adoc-web.outputs.public_ip }}:8080/WebGoat'
+    quick: true
   web_public_ip:
     value: '{{ .grains.adoc-web.outputs.public_ip }}'
     quick: true
